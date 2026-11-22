@@ -7,7 +7,7 @@ for detecting severe schedule delay under a fixed inspection budget — on real 
 |---|---|
 | **Course** | 23MAT303 — Mathematics for Intelligent Systems 5 |
 | **Outcome** | Severe delay = top-quartile cumulative positive schedule variance |
-| **Primary data** | NYC Open Data `95tx-snak` (~22k rows / 3,661 PIDs) + `n7gv-k5yt` |
+| **Primary data** | NYC Open Data [`95tx-snak`](https://data.cityofnewyork.us/d/95tx-snak) (~22k rows / 3,661 PIDs) + [`n7gv-k5yt`](https://data.cityofnewyork.us/d/n7gv-k5yt) — see [§10 Data sources](#10-data-sources) |
 | **Split** | PID-level 70 / 15 / 15 → **2,562 / 549 / 550** |
 | **Headline result** | TEST accuracy **0.940**, ROC-AUC **0.981** — beats Khodabakhshian (0.85) and Tagharobi (0.89) |
 
@@ -414,13 +414,21 @@ python -u experiments/run_ablation.py
 
 ## 10. Data sources
 
-| Dataset | ID / link | Scale | Role |
-|---------|-----------|------:|------|
-| NYC Schedule History & Variance | [`95tx-snak`](https://data.cityofnewyork.us/api/v3/views/95tx-snak/export.csv?accessType=DOWNLOAD) | ~22k rows / 3,661 PIDs | Sequential evidence + delay reasons |
-| NYC Capital Projects | [`n7gv-k5yt`](https://data.cityofnewyork.us/api/v3/views/n7gv-k5yt/export.csv?accessType=DOWNLOAD) | ~3.3k rows / ~363 PIDs | Budget / category covariates |
-| UK NISTA GMPP 2025–26 | [gov.uk](https://www.gov.uk/government/publications/nista-major-projects-annual-report-2025-26) | ~189 projects | Secondary / transfer validation |
+Public datasets used by this project (portal pages + direct CSV downloads):
 
-**Severe-delay label:** top-quartile cumulative positive `variance_day` among PIDs with ≥ 2 history rows (relative-slip rule used when planned duration is available — see `docs/dataset_card.md`).
+| Dataset | Portal | CSV download | Scale | Role |
+|---------|--------|--------------|------:|------|
+| NYC Citywide Schedule History & Variance | [`95tx-snak`](https://data.cityofnewyork.us/d/95tx-snak) | [Download CSV](https://data.cityofnewyork.us/api/v3/views/95tx-snak/export.csv?accessType=DOWNLOAD) | ~22k rows / 3,661 PIDs | Sequential evidence + delay reasons |
+| NYC Capital Projects Schedules & Budgets | [`n7gv-k5yt`](https://data.cityofnewyork.us/d/n7gv-k5yt) | [Download CSV](https://data.cityofnewyork.us/api/v3/views/n7gv-k5yt/export.csv?accessType=DOWNLOAD) | ~3.3k rows / ~363 PIDs | Budget / category covariates |
+| UK NISTA Major Projects (GMPP) 2025–26 | [gov.uk publication](https://www.gov.uk/government/publications/nista-major-projects-annual-report-2025-26) | [Download CSV](https://assets.publishing.service.gov.uk/media/6a4fb28da6586e258d371bfd/NISTA_Major_Projects_Annual_Report_2025-2026_Data.csv) | ~189 projects | Secondary / transfer validation |
+
+Local fetch (writes into `data/raw/`):
+
+```bash
+python -m src.data.download_datasets
+```
+
+**Severe-delay label:** top-quartile cumulative positive `variance_day` among PIDs with ≥ 2 history rows (relative-slip rule used when planned duration is available — see [`docs/dataset_card.md`](docs/dataset_card.md)).
 
 ---
 

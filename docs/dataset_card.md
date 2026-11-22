@@ -2,18 +2,16 @@
 
 ## Primary — NYC Open Data
 
-| Dataset | ID | Scale | Use |
-|---|---|---|---|
-| Schedule History & Variance | `95tx-snak` | ~22k rows / ~3.6k PIDs | Sequential evidence + delay reasons |
-| Capital Projects Schedules & Budgets | `n7gv-k5yt` | ~3.3k rows / ~363 PIDs | Labels / covariates |
-
-Downloads:
-- https://data.cityofnewyork.us/api/v3/views/95tx-snak/export.csv?accessType=DOWNLOAD
-- https://data.cityofnewyork.us/api/v3/views/n7gv-k5yt/export.csv?accessType=DOWNLOAD
+| Dataset | Portal | CSV | Scale | Use |
+|---|---|---|---|---|
+| Schedule History & Variance | [95tx-snak](https://data.cityofnewyork.us/d/95tx-snak) | [CSV](https://data.cityofnewyork.us/api/v3/views/95tx-snak/export.csv?accessType=DOWNLOAD) | ~22k rows / ~3.6k PIDs | Sequential evidence + delay reasons |
+| Capital Projects Schedules & Budgets | [n7gv-k5yt](https://data.cityofnewyork.us/d/n7gv-k5yt) | [CSV](https://data.cityofnewyork.us/api/v3/views/n7gv-k5yt/export.csv?accessType=DOWNLOAD) | ~3.3k rows / ~363 PIDs | Labels / covariates |
 
 ## Secondary — UK NISTA GMPP 2025–26
 ~189 major projects with DCA Red/Amber/Green for transfer validation.
-https://www.gov.uk/government/publications/nista-major-projects-annual-report-2025-26
+
+- Portal: https://www.gov.uk/government/publications/nista-major-projects-annual-report-2025-26
+- CSV: https://assets.publishing.service.gov.uk/media/6a4fb28da6586e258d371bfd/NISTA_Major_Projects_Annual_Report_2025-2026_Data.csv
 
 ## Severe-delay label rule
 1. Prefer relative slip ≥ 25% of planned duration when design/start and forecast/actual completion exist.
