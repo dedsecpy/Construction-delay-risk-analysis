@@ -20,3 +20,19 @@ web/dist/
 Thumbs.db
 *.log
 ~$*
+# IEEE Access build / local tooling
+report/ieee_access/texbin/
+report/ieee_access/access_tpl/
+report/ieee_access/beatriz_latex/
+report/ieee_access/*.zip
+report/ieee_access/_preview_*.png
+report/ieee_access/main.aux
+report/ieee_access/main.bbl
+report/ieee_access/main.blg
+report/ieee_access/main.log
+report/ieee_access/IEEEtran_access_base.cls
+report/ieee_access/ieeetran_cls_backup.cls
+report/ieee_access/ieeeaccess_erwin.cls
+report/ieee_access/bullet.png
+report/ieee_access/logo.png
+report/ieee_access/notaglinelogo.png

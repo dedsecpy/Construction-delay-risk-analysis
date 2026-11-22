@@ -1,0 +1,89 @@
+% Additional Results/Discussion depth without new \subsection counters
+
+Expanding~\eqref{eq:noisyor} for a configuration $f\in\{0,1\}^{8}$ yields
+\begin{equation}
+P(Y{=}1\mid F{=}f)=1-(1-\ell)\prod_{i=1}^{8}(1-p_c)^{f_i}.
+\label{eq:noisyor2}
+\end{equation}
+Under independent Bernoulli priors $\pi$, the joint factorizes as
+\begin{equation}
+P(F{=}f)=\prod_{i=1}^{8}\pi_i^{f_i}(1-\pi_i)^{1-f_i}.
+\label{eq:prior}
+\end{equation}
+Clamped absences set $f_i{=}0$ for never-mentioned factors and remove those coordinates from the free product. For inspected factors with observed presence $o_i{\in}\{0,1\}$, the corresponding coordinate is fixed. Consensus priors $\pi^{\mathrm{c}}$ are empirical TRAIN presence rates. Disagreement priors $\pi^{\mathrm{d}}$ widen uncertain factors by a multiplicative dispersion estimated from TRAIN episode variability, preserving a transparent disagreement signal without inventing a second CPT family. Neither prior is claimed as a universal industry standard; both are TRAIN-derived parameters with explicit provenance in the released scripts~\cite{Heckerman1996,Onisko2001}.
+
+Let $p=P(Y{=}1\mid e)$ be the current posterior. With alert action set $\{\mathrm{alert},\mathrm{quiet}\}$ and costs $C_{\mathrm{MISS}}$, $C_{\mathrm{FA}}$, expected losses are
+\begin{align}
+L_{\mathrm{alert}}(p)&=(1-p)\,C_{\mathrm{FA}},\\
+L_{\mathrm{quiet}}(p)&=p\,C_{\mathrm{MISS}},\\
+L(p)&=\min\{L_{\mathrm{alert}}(p),L_{\mathrm{quiet}}(p)\}.
+\end{align}
+Myopic VoI for inspecting factor $i$ is the expected reduction in this Bayes risk:
+\begin{equation}
+\mathrm{VoI}(i)=L(p)-\sum_{o\in\{0,1\}}P(O_i{=}o\mid e)\,L\!\left(p^{(i,o)}\right),
+\label{eq:voi2}
+\end{equation}
+where $p^{(i,o)}$ is the posterior after clamping factor $i$ to observation $o$. Observation probabilities follow from the current BN by summing configurations consistent with $O_i{=}o$. This is an adapted engineering VoI policy: the action space is an alert decision rather than a repair action, and the observation model is factor presence inferred from schedule-reason episodes~\cite{Howard1966,Memarzadeh2016,Song2021}.
+
+Prefix features at early fraction $\alpha$ use only the first $\lfloor\alpha T_j\rfloor$ schedule updates of project $j$. Features include cumulative positive variance statistics, counts of mapped factors observed so far, agency/phase/category indicators, and budget covariates from \texttt{n7gv-k5yt}. Categorical encodings and numeric standardization are fit on TRAIN PIDs only. The severe-delay label $Y$ is defined from full-history cumulative variance (top quartile among PIDs with ${\geq}2$ rows), so the prediction task is early warning of an eventual severe outcome. VAL is used solely for threshold selection and model choice; TEST is scored once~\cite{Egwim2021,Tagharobi2025}.
+
+Table~\ref{tab:fullB} reports recall, precision, FPR, ROC-AUC, and Brier for all four policies across $B\in\{1,2,3,4\}$ on TEST ($n{=}550$). Across the entire grid, recall remains $0.450$, precision $0.806$, and FPR $0.027$. ROC-AUC varies only in the third decimal place (approximately $0.872$--$0.873$), and Brier decreases slightly from ${\approx}0.102$ at $B{=}1$ to ${\approx}0.097$ at $B{\geq}2$ as additional inspections update $p$ without changing the alert set enough to move classification metrics. Disagreement VoI shows a marginally higher AUC at $B{=}1$ ($0.873$) than consensus/fixed ($0.872$), but the difference is not operationally meaningful at the alert threshold. The table therefore strengthens the $B{=}2$ finding: under absence clamping, budget increases do not unlock policy separation on this dataset.
+
+\begin{table}[!ht]
+\centering
+\caption{Full TEST scoreboard for budgeted BN inspection ($n{=}550$).}
+\label{tab:fullB}
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Policy} & $B$ & \textbf{Rec.} & \textbf{Prec.} & \textbf{FPR} & \textbf{AUC} & \textbf{Brier} \\
+\hline
+Fixed & 1 & 0.450 & 0.806 & 0.027 & 0.872 & 0.102 \\
+\hline
+Fixed & 2 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Fixed & 3 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Fixed & 4 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Static BN & 1 & 0.450 & 0.806 & 0.027 & 0.872 & 0.102 \\
+\hline
+Static BN & 2 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Static BN & 3 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Static BN & 4 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Cons.\ VoI & 1 & 0.450 & 0.806 & 0.027 & 0.872 & 0.102 \\
+\hline
+Cons.\ VoI & 2 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Cons.\ VoI & 3 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Cons.\ VoI & 4 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Dis.\ VoI & 1 & 0.450 & 0.806 & 0.027 & 0.873 & 0.100 \\
+\hline
+Dis.\ VoI & 2 & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Dis.\ VoI & 3 & 0.450 & 0.806 & 0.027 & 0.873 & 0.097 \\
+\hline
+Dis.\ VoI & 4 & 0.450 & 0.806 & 0.027 & 0.873 & 0.097 \\
+\hline
+\end{tabular}
+\end{table}
+
+At $\tau{=}0.51$, the confusion counts (TN $424$, FP $16$, FN $17$, TP $93$) imply that false negatives and false positives are nearly balanced in count despite the $0.20$ base rate. Specificity $0.964$ shows that quiet decisions dominate correctly among non-severe projects, while recall $0.845$ shows that most severe projects are caught from prefix features alone. The $17$ missed severe projects are the operational failure set for RQ3: lead-time analysis indicates that missed cases tend to have weaker early variance signals, so the early-warning envelope is not universal~\cite{Tagharobi2025,Egwim2021}.
+
+Enumerating $256$ configurations per posterior query is trivial relative to gradient boosting training on $2562$ TRAIN PIDs. Policy evaluation for one TEST PID with budget $B$ requires $O(B\cdot |\mathcal{U}|\cdot 256)$ likelihood summations, which remains interactive in the FastAPI service. Scalability claims are therefore limited to this factor cardinality: if $|\mathcal{F}|$ grew beyond ${\approx}20$ without factorization, exact enumeration would need replacement by junction-tree or sampling methods~\cite{Heckerman1996}. Within the released eight-factor ontology, runtime is not the binding constraint; evidence sparsity is.
+
+Fig.~\ref{fig:litbeat} and Table~\ref{tab:champion} report accuracy $0.940$ against published references $0.85$~\cite{Khodabakhshian2025} and $0.89$~\cite{Tagharobi2025}. The comparison is intentionally scoped: those papers use different labels, features, and validation designs. What is scientifically transferable is the accuracy number as a community yardstick that delay-risk models often quote. Claiming state of the art on an identical task would be unjustified; claiming that the champion exceeds commonly cited accuracy references under a PID-held-out open-data protocol with calibration diagnostics matches the executed evidence. Bootstrap intervals further prevent over-reading a single point estimate~\cite{GneitingRaftery2007,Hand2009}.
+
+The implemented miss/false-alarm cost ratio $5{:}1$ encodes a conservative preference against missed severe delay. Changing the ratio would change VoI rankings in principle, yet Table~\ref{tab:fullB} shows that classification metrics are already saturated under the clamped evidence model, so cost-ratio sensitivity is expected to affect posterior paths more than TEST recall/precision at the current $\tau$. Threshold $\tau$ itself was selected on VAL to maximize accuracy with a soft recall floor; decision-curve analysis (Fig.~\ref{fig:dca}) shows that net benefit remains favorable across a band around that choice~\cite{Vickers2006}. Agencies with different false-alarm tolerance should retune $\tau$ on local validation data rather than reuse $0.51$ as a universal constant.
+
+Ingest audits examined duplicate schedule rows, missing agency fields, and impossible negative cumulative constructions. Blank-reason rows are excluded from factor mapping rather than imputed. PID strings are normalized before split assignment so that typographically variant identifiers cannot leak across folds. The TEST severe rate $0.20$ matches the intended quartile construction among eligible PIDs. These checks do not eliminate all open-data noise---reason text remains administrative language---but they prevent silent deletion of inconvenient cases and document the inclusion rules that produced $n{=}3661$ modeled projects~\cite{Woldesenbet2016}.
+
+Fuzzy and hybrid risk papers demonstrate that soft uncertainty representations can encode expert linguistic assessments when numerical episodes are scarce~\cite{Ebrat2014,Islam2017}. Scientometric reviews show accelerating AI adoption with uneven methodological rigor~\cite{Darko2020,PanYZhang2021,Abioye2021,Regona2024}. DRIN does not replace those strands; it occupies the complementary niche where large public multi-period records exist and the decision problem is budgeted evidence collection plus calibrated early warning. In that niche, the decisive experimental questions are leakage control, proper scoring, and policy-identifiability under realistic sparsity---exactly the questions answered by Tables~\ref{tab:champion}--\ref{tab:fullB} and Figs.~\ref{fig:cal}--\ref{fig:budget}.
+
+The experiments do not support claims that disagreement VoI is generally superior, that myopic VoI is optimal among all sequential policies, that NYC results transfer unchanged to marine or mass-housing portfolios, or that NLP-only mapping is adequate without regex precedence. They also do not support treating accuracy alone as a sufficient deployment metric: Brier, ECE, and decision curves are required to assess whether probabilities are usable for triage~\cite{Gneiting2007,Vickers2006}. Stating these negatives is part of defining the operating envelope.
+
+RQ1 receives a conditional answer: VoI does not improve budgeted detection metrics relative to fixed ranking on this clamped NYC evidence model, because inspectable sets are too small for order to matter. RQ2 receives a similarly conditional answer: disagreement priors change mean posterior risk only marginally and do not change TEST alert metrics at the reported threshold. RQ3 receives a positive answer on this dataset: prefix-based HGB early warning is strongly discriminative and comparatively well calibrated, with literature-competitive accuracy under a scoped comparison. The joint implication is that agencies should not expect sequential VoI to differentiate policies until richer inspectable-factor regimes are observed, while they can already obtain high-value triage from calibrated prefix models on the same open data~\cite{Luu2009,Memarzadeh2016,Egwim2021,Tagharobi2025}.

@@ -1,0 +1,79 @@
+% Results expansion without additional \subsection (IEEE alphabetic subsection limit)
+
+Exact posterior severe-delay probability under evidence $e$ is
+\begin{equation}
+P(Y{=}1\mid e)=\sum_{f\in\{0,1\}^{|\mathcal{F}|}} P(Y{=}1\mid F{=}f)\,P(F{=}f\mid e),
+\label{eq:post}
+\end{equation}
+where $P(F{=}f\mid e)$ is obtained by restricting the prior product measure to configurations consistent with clamped absences and inspected presences. Because $|\mathcal{F}|{=}8$, \eqref{eq:post} is evaluated by enumeration rather than approximate message passing, eliminating variational error as a confounder when comparing policies~\cite{Heckerman1996,Onisko2001}.
+
+Let $\mathcal{U}$ denote the set of still-uninspected but historically mentioned factors and let $B$ be remaining budget. The myopic consensus policy selects
+\begin{equation}
+i^{\star}=\arg\max_{i\in\mathcal{U}} \mathrm{VoI}^{\mathrm{c}}(i)\quad\text{s.t.}\quad |\text{inspections}|<B,
+\label{eq:policy}
+\end{equation}
+and likewise for disagreement VoI with prior $\pi^{\mathrm{d}}$. The asymmetric alert utility used inside VoI is
+\begin{align}
+U_{\mathrm{alert}}(p)&=-(1-p)\,C_{\mathrm{FA}},\\
+U_{\mathrm{quiet}}(p)&=-p\,C_{\mathrm{MISS}},\\
+L(p)&=-\max\{U_{\mathrm{alert}}(p),U_{\mathrm{quiet}}(p)\},
+\end{align}
+with $C_{\mathrm{MISS}}{=}5$ and $C_{\mathrm{FA}}{=}1$ in the released implementation. These constants are a transparent design choice encoding higher miss cost; they are not claimed as universal industry standards~\cite{Howard1966,Vickers2006}.
+
+History rows with blank reasons are excluded from factor mapping. PID strings are normalized before split assignment. Feature standardization and categorical one-hot encodings are fit on TRAIN only and applied to VAL/TEST. Threshold $\tau$ is selected exclusively on VAL. The TEST set is used once for reporting. These controls follow predictive-study hygiene emphasized in delay-ML evaluations~\cite{Egwim2021,Tagharobi2025,Saito2015}. Duplicate schedule rows, impossible negative cumulative constructions, and missing agency fields were inspected during ingest; impossible values are not silently deleted without logging. Class imbalance (TEST severe rate $0.20$) motivates PR-AUC and balanced accuracy alongside ROC-AUC~\cite{Saito2015,Hand2009}.
+
+Table~\ref{tab:early} reports champion TEST accuracy and AUC across early fractions used to build prefix features. Even at $0.40$, accuracy remains above $0.90$ and exceeds the $0.85$ literature accuracy reference~\cite{Khodabakhshian2025}; the selected $0.70$ setting maximizes AUC among the swept values. This sensitivity experiment supports robustness of discrimination to earlier warning horizons, at the expected cost of slightly lower accuracy when fewer updates are observed~\cite{Egwim2021,Tagharobi2025}.
+
+\begin{table}[!ht]
+\centering
+\caption{Early-fraction sensitivity of the champion on TEST.}
+\label{tab:early}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{early\_frac} & \textbf{Acc.} & \textbf{AUC} & \textbf{$>$0.85} & \textbf{$>$0.89} \\
+\hline
+0.40 & 0.902 & 0.953 & Yes & Yes \\
+\hline
+0.50 & 0.905 & 0.959 & Yes & Yes \\
+\hline
+0.60 & 0.938 & 0.969 & Yes & Yes \\
+\hline
+0.70 & 0.940 & 0.981 & Yes & Yes \\
+\hline
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:boot} lists bootstrap means and $95\%$ intervals for core TEST metrics ($400$ resamples). Intervals are narrow for accuracy and ROC-AUC, wider for precision/recall as expected for the minority severe class. These intervals should be reported whenever literature comparisons are made, because point estimates alone can overstate stability~\cite{GneitingRaftery2007,Hand2009}.
+
+\begin{table}[!ht]
+\centering
+\caption{Bootstrap summary for champion TEST metrics ($n_{\mathrm{boot}}{=}400$).}
+\label{tab:boot}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{Mean} & \textbf{CI lo} & \textbf{CI hi} \\
+\hline
+Accuracy & 0.941 & 0.922 & 0.958 \\
+\hline
+Balanced acc. & 0.906 & 0.870 & 0.939 \\
+\hline
+Precision & 0.856 & 0.782 & 0.914 \\
+\hline
+Recall & 0.849 & 0.780 & 0.911 \\
+\hline
+F1 & 0.852 & 0.798 & 0.896 \\
+\hline
+ROC-AUC & 0.981 & 0.969 & 0.990 \\
+\hline
+Brier & 0.043 & 0.031 & 0.055 \\
+\hline
+\end{tabular}
+\end{table}
+
+The near-equality of Fixed, Static BN, Consensus VoI, and Disagreement VoI on TEST is a failure mode of \emph{identifiability}, not of software. When most factors are clamped absent, the residual inspectable set is often size one or two; VoI then has little combinatorial advantage. This mirrors reliability findings that VoI differentials shrink when observation sets are constrained or when prior/likelihood structure leaves little expected loss reduction~\cite{Song2021,Memarzadeh2016,Malings2016}. Reporting this tie prevents over-claiming sequential intelligence on datasets where the evidence model collapses policy diversity.
+
+A second failure mode is NLP-only mapping: against regex weak labels, NLP macro-F1 is low because training texts for non-fallback classes are scarce in TRAIN. The operational system therefore keeps regex precedence---an engineering decision aligned with Oni\'sko \textit{et al.}'s observation that parameterized structures help when data are limited~\cite{Onisko2001}, here applied at the evidence-extraction layer. A third boundary is external validity: NYC capital projects differ from marine~\cite{Comu2023}, mass-housing~\cite{Khodabakhshian2025}, and national progress portfolios~\cite{Tagharobi2025}. The methods transfer; the numeric operating points may not. Secondary UK GMPP summaries in the codebase are intentionally not mixed into TEST metrics to avoid cross-regime contamination.
+
+Agencies can deploy the champion as a portfolio triage signal: projects with high calibrated $P(Y{=}1)$ warrant managerial attention even before additional inspections. BN inspection remains valuable as an audit trail---it explains which factors, if confirmed, drive posterior risk---even when VoI order ties with fixed ranking. Decision-curve analysis helps choose $\tau$ under agency-specific false-alarm tolerance~\cite{Vickers2006}. Proper scoring (Brier, log-loss) should be monitored over time because discrimination can remain high while calibration drifts~\cite{Gneiting2007,GneitingRaftery2007}.
+
+Noisy-OR is a special case of causal independence~\cite{Heckerman1996}. Learning Noisy-OR parameters from small data is classical~\cite{Onisko2001}. Information-value theory~\cite{Howard1966} and sequential VoI in engineering systems~\cite{Memarzadeh2016,Fauriat2020,Yuan2021,Song2021} supply the decision layer. Scoring-rule theory~\cite{Brier1950,Murphy1973,GneitingRaftery2007} and calibration diagnostics~\cite{Gneiting2007} supply the probabilistic evaluation layer. Agreement coefficients~\cite{Cohen1960} complement accuracy when class balance is imperfect. Together these adopted components form the DRIN stack; the derived contribution is their experimental coupling on open capital-project episodes under a hard inspection budget.

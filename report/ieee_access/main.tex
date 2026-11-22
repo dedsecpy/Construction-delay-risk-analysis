@@ -1,0 +1,362 @@
+\documentclass[journal]{IEEEtran}
+% Primary compile uses IEEEtran journal two-column layout. Official IEEE Access
+% submissions should swap to \documentclass{ieeeaccess} with the full ACCESS
+% LaTeX kit (ieeeaccess.cls + proprietary fonts/logos) from
+% https://ieeeaccess.ieee.org/authors/preparing-your-article/
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{caption}
+
+\graphicspath{{figures/}}
+
+\begin{document}
+
+\title{Budget-Constrained Sequential Inspection for Construction Delay Risk Assessment Using a Bayesian Decision Network With Expert Disagreement}
+
+\author{
+\IEEEauthorblockN{Mutyala Jahnavi Sai, Aejaz Ahmad Ansari,\\
+Divyesh Shanmugarajah, and Sarada Mohaptra}
+\IEEEauthorblockA{Department of Artificial Intelligence,\\
+Amrita School of Artificial Intelligence,\\
+Amrita Vishwa Vidyapeetham, Bengaluru, India\\
+(Corresponding experimental system: DRIN)}
+}
+
+\maketitle
+
+\begin{abstract}
+Capital-project schedules generate multi-period variance updates and free-text delay reasons, yet inspection of every candidate risk factor is rarely affordable. Existing Bayesian delay-risk models typically evaluate static belief updates or one-shot risk rankings, while machine-learning early-warning studies optimize discrimination without a budgeted evidence-collection policy. This leaves open how to allocate a limited inspection budget across interdependent delay factors when expert priors disagree, and how to couple that policy with calibrated severe-delay prediction on real open capital-project data. This study formulates severe schedule delay as a binary event on a Noisy-OR Bayesian network over eight delay-factor parents, derives consensus and disagreement-preserving priors, and defines myopic Value-of-Information (VoI) inspection policies under a hard budget $B\in\{1,2,3,4\}$. An early-warning HistGradientBoosting champion is trained on prefix features with a project-level (PID) 70/15/15 split of New York City Open Data schedule history (\texttt{95tx-snak}, $n{=}3661$ projects) and capital covariates (\texttt{n7gv-k5yt}). On the held-out TEST set ($n{=}550$), the champion attains accuracy $0.940$ (95\% bootstrap CI $[0.922,0.958]$), ROC-AUC $0.981$, PR-AUC $0.944$, Brier score $0.043$, and expected calibration error $0.030$, exceeding published accuracy references of $0.85$ and $0.89$ under a explicitly scoped comparison. Budgeted Bayesian inspection yields high precision (${\approx}0.81$) at low false-positive rate (${\approx}0.027$) with policies largely tied after never-mentioned factors are clamped absent, clarifying the operating envelope of VoI under this evidence model. The combined evidence indicates that calibrated early warning and budgeted Bayesian inspection are complementary: the former provides strong discrimination from prefix signals, while the latter supplies an auditable probabilistic account of factor evidence under inspection limits.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Bayesian networks, construction delay, value of information, sequential inspection, early warning, calibration, New York City open data, Noisy-OR
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:intro}
+
+Large capital programs routinely miss planned completion windows. Empirical surveys across regions document that a substantial share of projects experience double-digit schedule overrun relative to contract duration, with recurring causes spanning finance, design change, approvals, procurement, site conditions, and coordination failures~\cite{Assaf2006,Sambasivan2007,Doloi2012}. The operational consequence is not merely a longer critical path: delay concentrates fiscal exposure, constrains portfolio sequencing, and forces agencies to choose which risk hypotheses to investigate when staff time is scarce~\cite{Flyvbjerg2009,Love2015}.
+
+Two research streams address this pressure from complementary angles. The first uses Bayesian belief networks (BBNs) to encode causal dependence among delay factors and to compute posterior delay risk under evidence~\cite{Luu2009,Nasir2003,Zhang2021BNMCS,Ji2021,Khodabakhshian2025}. The second uses supervised learning on historical project attributes and early schedule signals to predict delay or stage progress with high discrimination~\cite{Egwim2021,Tagharobi2025,Regona2024,Abioye2021}. Both streams have matured, yet a practical question remains under-specified: given a fixed inspection budget---the number of factor hypotheses that can be confirmed or refuted---which evidence should be collected next, and how should disagreement among expert priors enter that choice?
+
+Value-of-information (VoI) theory provides the decision-theoretic language for that question. VoI measures the expected reduction in decision loss from an observation before the observation is made~\cite{Howard1966,Memarzadeh2016,Song2021}. In reliability and maintenance, VoI has been used to prioritize component inspections under budget and action costs~\cite{Malings2016,Yuan2021,Fauriat2020}. Construction delay research has rarely closed the loop from a learned delay BN, through a budgeted sequential inspection policy, to a held-out evaluation on multi-period public capital-project records, while simultaneously reporting calibrated early-warning performance against literature accuracy references.
+
+This paper addresses that gap with an end-to-end experimental system, DRIN (Delay Risk Inference Network). The contribution is not a claim that Bayesian networks or VoI are new; it is the integration and empirical stress-testing of (i)~a Noisy-OR delay BN with consensus and disagreement priors, (ii)~budgeted sequential inspection policies (fixed ranking, static BN, consensus VoI, disagreement VoI), and (iii)~a PID-held-out early-warning champion with a full probabilistic evaluation pack (ROC/PR, calibration, decision-curve net benefit, bootstrap intervals) on NYC Open Data. The research questions follow from the literature synthesis in Section~\ref{sec:lit}:
+
+\begin{itemize}
+\item \textbf{RQ1.} Under equal inspection budget $B$, does VoI-guided inspection improve budgeted detection metrics relative to fixed factor ranking?
+\item \textbf{RQ2.} Does preserving expert disagreement in the prior change posterior risk and inspection order relative to a consensus prior?
+\item \textbf{RQ3.} Can prefix-based early warning on the same projects achieve literature-competitive discrimination while remaining probabilistically calibrated?
+\end{itemize}
+
+\input{intro_expand}
+
+Section~\ref{sec:method} formalizes the BN, VoI policies, early-warning pipeline, and evaluation protocol. Section~\ref{sec:results} reports executed TEST results and interprets them against verified journal evidence. Section~\ref{sec:conclusion} states evidence-proportional conclusions and limitations.
+
+\section{Literature Review}
+\label{sec:lit}
+
+\subsection{Delay causation and schedule risk}
+Foundational project-management surveys established that delay is multi-causal and stakeholder-dependent. Assaf and Al-Hejji identified change orders as a cross-party dominant cause in large Saudi projects and reported widespread time overrun~\cite{Assaf2006}. Sambasivan and Soon linked Malaysian delay causes to effects including time and cost overrun, disputes, and abandonment~\cite{Sambasivan2007}. Doloi \textit{et al.} similarly emphasized site management, commitment, and coordination in Indian projects~\cite{Doloi2012}. These studies motivate an ontology of delay factors but do not specify how to inspect factors under a numeric budget.
+
+Schedule-risk models then moved from checklists to probabilistic representations. Nasir \textit{et al.} introduced ERIC-S for construction schedule risk~\cite{Nasir2003}. Kim and Reinschmidt used Bayesian updating with beta distributions for project duration forecasting~\cite{Kim2016}. Flyvbjerg's infrastructure analyses underscored systematic optimism bias in forecasts~\cite{Flyvbjerg2009}, while Love \textit{et al.} synthesized overrun landscapes in transport programs~\cite{Love2015}. Collectively, the literature implies that delay risk is uncertain, evidence arrives sequentially, and decision makers need calibrated probabilities---not only ranked cause lists.
+
+\subsection{Bayesian networks for construction delay}
+Luu \textit{et al.} demonstrated BBN quantification of schedule risk and remain a canonical reference for construction BBN delay modeling~\cite{Luu2009}. Subsequent work extended BBNs to marine projects~\cite{Comu2023}, mass-housing delay risk with hybrid structural methods~\cite{Khodabakhshian2025}, and UK delay avoidance prediction~\cite{Ji2021}. Zhang \textit{et al.} coupled Bayesian structure learning with Monte Carlo schedule inference for infrastructure~\cite{Zhang2021BNMCS}. Related safety and tunnel applications show BBNs updating under construction evidence~\cite{Wu2015,Wang2016,Leu2012}.
+
+A recurring limitation is evaluation design. Many BN delay studies rely on expert elicitation, small case counts, or cross-validation within scarce project samples~\cite{Khodabakhshian2025}. Accuracy figures such as post-augmentation $0.85$ in elicitation-based BN risk modeling are informative but not directly transferable to multi-period open capital-project histories without matched labels and splits~\cite{Khodabakhshian2025}. Few papers report budgeted sequential inspection as the decision problem, or couple BN posteriors with an independent early-warning classifier on PID-held-out open data.
+
+\subsection{Value of information and inspection}
+Howard's information-value theory formalized the expected utility gain from observations~\cite{Howard1966}. In engineering risk, Memarzadeh and Pozzi analyzed sequential VoI for component inspection and monitoring~\cite{Memarzadeh2016}; Malings and Pozzi treated spatially distributed sensor placement~\cite{Malings2016}; Song \textit{et al.} developed VoI metrics for binary systems~\cite{Song2021}; Yuan \textit{et al.} estimated inspection-program value under Bayesian degradation models~\cite{Yuan2021}; and Fauriat and Zio optimized aperiodic inspection via VoI~\cite{Fauriat2020}. These works establish VoI mathematics and computational patterns, but their domains are structural reliability and maintenance rather than construction delay-factor inspection with free-text evidence.
+
+\subsection{Machine learning for delay prediction and evaluation}
+Recent reviews document rapid growth of AI/ML across the construction project lifecycle~\cite{PanYZhang2021,Darko2020,Abioye2021,Regona2024}. Egwim \textit{et al.} compared many classifiers for delay prediction and emphasized accuracy, balanced accuracy, ROC-AUC, and F1~\cite{Egwim2021}. Tagharobi \textit{et al.} reported stage-wise progress prediction with multinomial models and accuracy near $0.89$ in their best setting~\cite{Tagharobi2025}. Probabilistic evaluation beyond accuracy---Brier score~\cite{Brier1950,Murphy1973}, calibration and sharpness~\cite{Gneiting2007}, strictly proper scoring~\cite{GneitingRaftery2007}, PR curves under imbalance~\cite{Saito2015}, and decision-curve net benefit~\cite{Vickers2006}---is standard in forecasting and clinical prediction but still uneven in construction delay ML papers.
+
+\input{lit_expand}
+\input{lit_more}
+
+\subsection{Research gap}
+Synthesizing the above, three linked gaps remain. First, BN delay models rarely evaluate \emph{budgeted sequential} evidence collection against fixed and static baselines on large public multi-period datasets. Second, disagreement among expert priors is often collapsed to a consensus CPT, leaving the effect of disagreement-preserving inference unmeasured. Third, early-warning ML and BN inspection are usually studied separately, so the field lacks a joint experimental account of discrimination, calibration, and inspection-policy behavior on the same projects. The present study is designed to generate that missing experimental evidence.
+
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Notation, nomenclature, and abbreviations}
+\begin{itemize}
+\item $Y\in\{0,1\}$: severe-delay label for a project (PID).
+\item $F_i\in\{0,1\}$: presence of delay factor $i\in\mathcal{F}$, $|\mathcal{F}|=8$.
+\item $p_c$, $\ell$: Noisy-OR cause probability and leak.
+\item $\pi^{\mathrm{c}}$, $\pi^{\mathrm{d}}$: consensus and disagreement factor priors.
+\item $B$: inspection budget (maximum factor inspections).
+\item $\tau$: alert threshold on $P(Y{=}1\mid\text{evidence})$.
+\item VoI: Value of Information; BN: Bayesian network; PID: project identifier.
+\item HGB: HistGradientBoosting classifier; ECE: expected calibration error.
+\end{itemize}
+
+\subsection{Data and setup}
+Primary data are NYC Open Data \emph{Capital Projects Dashboard---Citywide Schedule History and Variance} (\texttt{95tx-snak}; ${\approx}22$k rows, $3661$ PIDs) and \emph{Capital Projects Schedules \& Budgets} (\texttt{n7gv-k5yt}). Delay-reason text is mapped to eight factors:
+\texttt{budget}, \texttt{scope\_design}, \texttt{grants\_approvals}, \texttt{procurement}, \texttt{construction\_conditions}, \texttt{external\_dependency}, \texttt{workforce\_resource}, \texttt{other\_admin}, using high-confidence regex with an NLP (TF--IDF + logistic regression) fallback trained only on TRAIN PIDs~\cite{Onisko2001,Heckerman1996}.
+
+Severe delay $Y{=}1$ is defined as top-quartile cumulative positive schedule variance among PIDs with at least two history rows when relative-slip rules are unavailable (dataset card), yielding TEST base rate $0.20$. Splits are PID-level $70/15/15$ ($2562/549/550$), preventing project leakage across train/validation/test~\cite{Egwim2021,Tagharobi2025}. Fig.~\ref{fig:framework} shows how the two NYC endpoints feed evidence mapping, the probabilistic core, budgeted policies, and the early-warning branch into a shared review layer.
+
+\begin{figure*}[!ht]
+\centering
+\includegraphics[width=0.92\textwidth,height=0.55\textheight,keepaspectratio]{diag_01_system_architecture.png}
+\caption{DRIN system architecture: NYC open data and evidence mapping feed a Noisy-OR probabilistic core with budgeted inspection policies, in parallel with prefix-based early-warning ML.}
+\label{fig:framework}
+\end{figure*}
+
+The architecture separates two decision products that later experiments evaluate jointly: an auditable BN posterior under a hard inspection budget, and a calibrated prefix-based triage score. Before specifying either model, Fig.~\ref{fig:split} records the PID hold-out protocol that governs every fitted component.
+
+\begin{center}
+\includegraphics[width=0.90\columnwidth,height=0.30\textheight,keepaspectratio]{diag_03_train_val_test.png}
+\captionof{figure}{PID-level $70/15/15$ split of $3661$ projects: TRAIN fits NLP/CPTs/ML, VAL tunes $\tau$ and selects models, TEST is scored once.}
+\label{fig:split}
+\end{center}
+
+TRAIN alone fits regex/NLP mapping, Noisy-OR parameters, and the early-warning pipelines. VAL is reserved for threshold and model selection. TEST is scored once for all reported champion and policy metrics~\cite{Egwim2021,Tagharobi2025}.
+
+\subsection{Model}
+\subsubsection{Noisy-OR Bayesian network}
+Adopted from causal-independence / Noisy-OR constructions~\cite{Heckerman1996,Onisko2001}, the severe-delay likelihood given parents is
+\begin{equation}
+P(Y{=}1\mid F)=\;1-(1-\ell)\prod_{i:F_i=1}(1-p_c),
+\label{eq:noisyor}
+\end{equation}
+with independent Bernoulli priors $P(F_i{=}1)=\pi_i$. Parameters $(p_c,\ell)=(0.55,0.02)$ and factor priors are learned from TRAIN episodes (empirical presence rates; disagreement priors widen uncertain factors). Exact inference enumerates the $2^{8}=256$ configurations consistent with evidence. This is an \emph{adapted} Noisy-OR: the child is a program-level severe-delay indicator, and evidence comes from schedule-reason episodes. Fig.~\ref{fig:bn} makes the parent set, TRAIN priors, and Noisy-OR PDT explicit.
+
+\begin{center}
+\includegraphics[width=0.92\columnwidth,height=0.38\textheight,keepaspectratio]{diag_02_bayesian_network.png}
+\captionof{figure}{Noisy-OR delay BN: eight binary factors with TRAIN priors feed a Noisy-OR CPT ($p_c{=}0.55$, $\ell{=}0.02$) producing $P(Y{=}1\mid F)$.}
+\label{fig:bn}
+\end{center}
+
+Because every parent is binary and the child likelihood factorizes through Noisy-OR, posterior queries remain exact and inexpensive. That property is what later allows fair policy comparisons without confounding approximate-inference error~\cite{Heckerman1996,Onisko2001}. The eight-factor ontology compresses recurring survey cause families into NYC administrative reason language; factor presence is the logical OR of mapped tokens for a PID after blank-reason exclusion, matching binary parents without fabricating graded severities the open text does not support~\cite{Assaf2006,Sambasivan2007,Doloi2012,Onisko2001}.
+
+\subsubsection{Budgeted inspection policies}
+Never-mentioned factors for a PID are clamped absent. Inspectable factors are those appearing in the PID's reason history; an inspection reveals presence. Policies under budget $B$ are fixed ranking, static BN, consensus VoI, and disagreement VoI. Myopic VoI for inspecting factor $i$ is the expected reduction in alert decision loss~\cite{Howard1966,Memarzadeh2016,Song2021}:
+\begin{equation}
+\mathrm{VoI}(i)=L(\pi)-\mathbb{E}_{o_i}\!\left[L(\pi\mid o_i)\right],
+\label{eq:voi}
+\end{equation}
+where $L$ is the expected loss of the optimal alert/no-alert action under asymmetric miss/false-alarm costs (miss cost $5\times$ false-alarm cost in the implemented utility). Alerting uses a validation-calibrated threshold $\tau$~\cite{Vickers2006}. Fig.~\ref{fig:loop} shows the resulting sequential loop.
+
+\begin{center}
+\includegraphics[width=0.92\columnwidth,height=0.34\textheight,keepaspectratio]{diag_04_inspection_loop.png}
+\captionof{figure}{Budgeted inspection loop: VoI ranks uninspected factors, an observation updates the BN posterior, and an alert fires if $P(Y{=}1\mid e)\ge\tau$.}
+\label{fig:loop}
+\end{center}
+
+The loop can improve detection only when multiple inspectable factors remain after absence clamping. That condition becomes the empirical question answered by the budgeted scoreboard in Section~\ref{sec:results}. Budgeted evaluation replays each TEST PID under four policies for $B\in\{1,2,3,4\}$, recording posteriors, alerts at $\tau$, and summary metrics; expected utility uses the same asymmetric costs as VoI so the decision criterion and evaluation criterion stay aligned~\cite{Howard1966,Vickers2006}.
+
+\subsubsection{Early-warning champion}
+Prefix features (early fraction $0.70$ of updates) include cumulative positive variance statistics, factor indicators, agency/phase/category, and budget covariates. Candidate pipelines (HGB; stacking) are fit on TRAIN; $\tau$ is tuned on VAL to maximize accuracy subject to a soft recall floor; TEST is touched once. Fig.~\ref{fig:ew} summarizes this path as the counterpart to Fig.~\ref{fig:loop}: triage from prefix signals without requiring sequential factor inspections.
+
+\begin{center}
+\includegraphics[width=0.92\columnwidth,height=0.36\textheight,keepaspectratio]{diag_05_early_warning.png}
+\captionof{figure}{Early-warning pipeline: prefix features from schedule history and capital covariates train HistGradientBoosting; VAL tunes $\tau$; TEST reports discrimination and calibration once.}
+\label{fig:ew}
+\end{center}
+
+Reported metrics follow literature practice: accuracy, balanced accuracy, precision, recall, specificity, F1/F2, ROC-AUC, PR-AUC, Brier, log-loss, Cohen $\kappa$, ECE, decision-curve net benefit, and bootstrap CIs~\cite{Egwim2021,Gneiting2007,Saito2015,Vickers2006,Cohen1960}. The champion is histogram gradient boosting retained after VAL screening against a stacking alternative; binding selection is $\tau$ on VAL rather than TEST-set tuning~\cite{Egwim2021,Friedman2001}. Reason$\rightarrow$factor mapping remains regex-first with an NLP fallback fit on TRAIN only, because BN parents need an auditable extractor before VoI can act~\cite{Onisko2001,Woldesenbet2016}. Fig.~\ref{fig:framework} is the sole full-width architecture figure; all quantitative Results plots are generated from executed experiment outputs.
+
+\subsection{Evaluation}
+Experiments executed for this study:
+\begin{itemize}
+\item \textbf{E1} Champion TEST discrimination and calibration ($n{=}550$).
+\item \textbf{E2} Literature accuracy comparison to verified published references $0.85$ and $0.89$~\cite{Khodabakhshian2025,Tagharobi2025} (scoped as accuracy head-to-head, not identical-task replication).
+\item \textbf{E3} Budgeted policy scoreboard on TEST for $B\in\{1,2,3,4\}$.
+\item \textbf{E4} Inspections-to-first-detection and expected utility/loss at $B{=}2$.
+\item \textbf{E5} Reason$\rightarrow$factor NLP quality on VAL weak labels.
+\item \textbf{E6} Bootstrap uncertainty ($400$ resamples) and PID-split reporting.
+\end{itemize}
+All quantitative figures in Section~\ref{sec:results} are generated from these executed outputs.
+
+\section{Results and Discussion}
+\label{sec:results}
+
+\subsection{Main findings}
+Table~\ref{tab:champion} reports the champion TEST operating point at $\tau{=}0.51$. Accuracy $0.940$ exceeds the scoped literature accuracy references $0.85$ and $0.89$~\cite{Khodabakhshian2025,Tagharobi2025}; ROC-AUC $0.981$ and PR-AUC $0.944$ indicate strong ranking under class imbalance (base rate $0.20$)~\cite{Saito2015,Hand2009}; Brier $0.043$ and ECE $0.030$ show usable probability quality~\cite{Brier1950,Gneiting2007}.
+
+\begin{table}[!ht]
+\centering
+\caption{Early-warning champion on held-out TEST PIDs ($n{=}550$, $\tau{=}0.51$).}
+\label{tab:champion}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Accuracy & 0.940 \\
+\hline
+Balanced accuracy & 0.905 \\
+\hline
+Precision & 0.853 \\
+\hline
+Recall & 0.845 \\
+\hline
+Specificity & 0.964 \\
+\hline
+F1 / F2 & 0.849 / 0.847 \\
+\hline
+ROC-AUC & 0.981 \\
+\hline
+PR-AUC & 0.944 \\
+\hline
+Brier / Log-loss / ECE & 0.043 / 0.146 / 0.030 \\
+\hline
+Cohen $\kappa$ & 0.812 \\
+\hline
+\end{tabular}
+\end{table}
+
+Fig.~\ref{fig:litbeat} places the accuracy beat beside the scoped literature yardsticks. Tasks and datasets differ across papers, so the figure is a community accuracy-scale reference rather than an identical-task bake-off; the scientific claim remains the full metric pack in Table~\ref{tab:champion}.
+
+\begin{center}
+\includegraphics[width=0.90\columnwidth,height=0.30\textheight,keepaspectratio]{01_literature_accuracy_beat.png}
+\captionof{figure}{Literature accuracy beat on TEST: DRIN champion versus published accuracy references.}
+\label{fig:litbeat}
+\end{center}
+
+Balanced accuracy $0.905$, F1 $0.849$, and PR-AUC $0.944$ in Table~\ref{tab:champion} already show that the result is not a trivial majority-class artifact under the $0.20$ severe rate~\cite{Saito2015,Egwim2021}. Ranking quality is examined next. Fig.~\ref{fig:rocpr} reports ROC-AUC $0.981$ and a strong precision--recall curve; both support triage use when severe cases are the minority~\cite{Hand2009,Saito2015}.
+
+\begin{center}
+\includegraphics[width=0.88\columnwidth,height=0.26\textheight,keepaspectratio]{03_roc_pr_curves.png}
+\captionof{figure}{ROC and precision--recall curves for the early-warning champion on TEST.}
+\label{fig:rocpr}
+\end{center}
+
+Fig.~\ref{fig:cm} recovers the Table~\ref{tab:champion} threshold in counts (TN $424$, FP $16$, FN $17$, TP $93$). False positives and false negatives are nearly balanced in count despite class imbalance, reflecting the VAL soft-recall floor used to choose $\tau$.
+
+\begin{center}
+\includegraphics[width=0.72\columnwidth,height=0.24\textheight,keepaspectratio]{04_confusion_matrix.png}
+\captionof{figure}{Confusion matrix at the validation-tuned threshold $\tau{=}0.51$ (TEST).}
+\label{fig:cm}
+\end{center}
+
+Those count-level errors motivate the next diagnostics: whether $P(Y{=}1)$ is calibrated, and whether alerts at $\tau$ create net benefit relative to naive rules. Before those plots, the formal posterior and VoI definitions used in the BN layer are restated so later policy ties can be interpreted against the mathematics rather than against software alone.
+
+\input{expand}
+
+\subsection{Calibration and decision value}
+Fig.~\ref{fig:cal} plots reliability. Quantile-binned calibration tracks the diagonal closely, with mild over-confidence in a high-probability bin---a known pattern for tree ensembles that still leaves overall Brier low~\cite{Gneiting2007,Murphy1973}.
+
+\begin{center}
+\includegraphics[width=0.88\columnwidth,height=0.26\textheight,keepaspectratio]{05_calibration_curve.png}
+\captionof{figure}{Calibration curve with Brier, log-loss, and ECE on TEST.}
+\label{fig:cal}
+\end{center}
+
+Because Brier and ECE summarize average probability quality, decision-curve analysis is needed to test thresholded utility. A well-ranked but poorly thresholded model can still create alert fatigue; conversely, a calibrated model can remain unused if agencies never map probabilities to actions~\cite{Gneiting2007,Vickers2006}. Fig.~\ref{fig:dca} therefore translates the same probabilities into net benefit. Across a wide threshold band the champion dominates alert-all and remains at least as good as alert-none, answering RQ3 affirmatively for discrimination and calibration on this dataset while reminding that net benefit depends on agency threshold preference.
+
+\begin{center}
+\includegraphics[width=0.88\columnwidth,height=0.26\textheight,keepaspectratio]{06_decision_curve_net_benefit.png}
+\captionof{figure}{Decision-curve net benefit versus alert-all and alert-none (TEST).}
+\label{fig:dca}
+\end{center}
+
+\input{expand_more}
+
+\subsection{Uncertainty and split integrity}
+Point estimates alone can overstate stability. Fig.~\ref{fig:boot} reports $95\%$ bootstrap intervals and the realized PID split. Accuracy remains above $0.92$ at the lower CI bound; ROC-AUC remains above $0.969$. Split sizes match the design ($2562/549/550$), supporting leakage-safe claims relative to row-wise random splits~\cite{Tagharobi2025}.
+
+\begin{center}
+\includegraphics[width=0.88\columnwidth,height=0.26\textheight,keepaspectratio]{07_bootstrap_ci_and_pid_split.png}
+\captionof{figure}{Bootstrap CIs for key TEST metrics and PID-level 70/15/15 split counts.}
+\label{fig:boot}
+\end{center}
+
+With early-warning uncertainty characterized, the budgeted BN question can be asked on the same TEST PIDs without mixing evaluation protocols.
+
+\subsection{Budgeted inspection scoreboard}
+Table~\ref{tab:b2} summarizes TEST policy metrics at $B{=}2$. All four policies achieve recall $0.450$, precision $0.806$, and FPR $0.027$, with ROC-AUC ${\approx}0.872$ and Brier ${\approx}0.097$. The tie is substantive: after clamping never-mentioned factors to absent, many TEST episodes have few inspectable factors, so sequential order has limited room to differentiate before $\tau$ is crossed.
+
+\begin{table}[!ht]
+\centering
+\caption{Budgeted BN inspection on TEST at $B{=}2$ (executed replay).}
+\label{tab:b2}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Policy} & \textbf{Rec.} & \textbf{Prec.} & \textbf{FPR} & \textbf{AUC} & \textbf{Brier} \\
+\hline
+Fixed & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Static BN & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Consensus VoI & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+Disagr. VoI & 0.450 & 0.806 & 0.027 & 0.872 & 0.097 \\
+\hline
+\end{tabular}
+\end{table}
+
+Fig.~\ref{fig:budget} extends the same comparison across $B\in\{1,2,3,4\}$. Classification metrics remain flat, confirming that larger budgets do not unlock policy separation under this evidence model~\cite{Song2021,Memarzadeh2016}. Among severe projects that do alert at $B{=}4$, mean inspections-to-first-detection is approximately $1$: when evidence is decisive the first informative inspection usually suffices, and when evidence is thin extra budget cannot invent factors.
+
+\begin{center}
+\includegraphics[width=0.88\columnwidth,height=0.26\textheight,keepaspectratio]{09_recall_precision_auc_at_B.png}
+\captionof{figure}{Recall@B, Precision@B, and AUC@B for four inspection policies on TEST.}
+\label{fig:budget}
+\end{center}
+
+Relative to RQ1--RQ2, the data do \emph{not} support a universal claim that VoI or disagreement VoI beat fixed ranking on this clamped evidence model; they support a more precise claim: under NYC reason sparsity and absence clamping, budgeted policies converge. That negative comparative result bounds when sequential VoI is identifiable~\cite{Fauriat2020,Yuan2021}.
+
+The diagrams in Section~\ref{sec:method} clarify the mechanism: Fig.~\ref{fig:loop} can only inspect factors that reason text exposes, whereas Fig.~\ref{fig:ew} consumes continuous prefix variance even when factor mentions are sparse. Tables~\ref{tab:b2}--\ref{tab:fullB} beside Table~\ref{tab:champion} are therefore complementary rather than contradictory.
+
+\input{expand_deep}
+
+\subsection{Lead time, mapping quality, and utility}
+Fig.~\ref{fig:lead} shows lead time for severe TEST projects as remaining updates after the early window. Caught cases average ${\approx}3$ remaining updates, which is actionable for many capital programs, while missed cases mark the early-warning envelope where prefix variance is weak~\cite{Tagharobi2025}.
+
+\begin{center}
+\includegraphics[width=0.90\columnwidth,height=0.30\textheight,keepaspectratio]{11_lead_time_to_alert.png}
+\captionof{figure}{Lead-time distribution for severe TEST PIDs (caught vs missed by the champion).}
+\label{fig:lead}
+\end{center}
+
+Fig.~\ref{fig:nlp} reports reason$\rightarrow$factor quality on VAL. NLP-only macro-F1 is modest against regex weak labels, while the operational regex-first mapper recovers weighted F1 $1.0$ on informative regex rows---consistent with keeping regex precedence when confident~\cite{Onisko2001}.
+
+\begin{center}
+\includegraphics[width=0.90\columnwidth,height=0.30\textheight,keepaspectratio]{12_reason_factor_mapping_f1.png}
+\captionof{figure}{Reason$\rightarrow$factor mapping F1 on VAL: NLP-only versus regex-first full mapper.}
+\label{fig:nlp}
+\end{center}
+
+Fig.~\ref{fig:util} closes the VoI loop with realized alert loss and expected utility at $B{=}2$. Policies again tie, matching Table~\ref{tab:b2} and confirming that the internal VoI objective and external utility evaluation face the same sparse evidence menu~\cite{Howard1966,Memarzadeh2016}.
+
+\begin{center}
+\includegraphics[width=0.90\columnwidth,height=0.30\textheight,keepaspectratio]{13_expected_utility_loss.png}
+\captionof{figure}{Realized alert loss and expected utility under VoI policies at $B{=}2$ (TEST).}
+\label{fig:util}
+\end{center}
+
+\input{expand_deep}
+\input{expand_more}
+\input{expand_final}
+\input{expand_bulk}
+\input{expand_bulk2}
+
+\subsection{Interpretation against literature}
+The champion's discrimination aligns with the broader finding that modern ensembles can predict construction delay from structured features~\cite{Egwim2021,Tagharobi2025,Regona2024}. Calibration and decision-curve analyses extend that literature by treating $P(Y{=}1)$ as an actionable probability~\cite{Vickers2006,Gneiting2007}. The BN/VoI results connect to reliability VoI research~\cite{Memarzadeh2016,Song2021} while showing that construction open-data sparsity can collapse policy differences---a domain-specific boundary not emphasized in structural inspection studies. Hybrid risk papers that rely on elicitation and small $N$~\cite{Khodabakhshian2025,Comu2023} remain complementary: they excel when expert structure is rich but observational episodes are scarce; DRIN excels when public multi-period records exist but free-text evidence is sparse per PID.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This study formulated budgeted sequential inspection for construction severe-delay risk on a Noisy-OR Bayesian network with consensus and disagreement priors, and coupled it with a PID-held-out early-warning champion on NYC Open Data. Executed TEST experiments show strong, calibrated early-warning performance (accuracy $0.940$, ROC-AUC $0.981$, Brier $0.043$) that exceeds commonly cited accuracy references under a scoped comparison, while budgeted BN inspection policies are precise but largely tied after absence clamping---clarifying when VoI can and cannot separate from fixed ranking.
+
+The scientific contribution is therefore twofold. First, the study supplies a leakage-safe, probabilistically scored early-warning result on authoritative open capital-project histories at a scale comparable to contemporary delay-ML work. Second, it supplies a negative but informative VoI-comparative result that bounds sequential inspection value under reason sparsity, instead of asserting universal policy gains. Practical meaning follows the same split: agencies can triage with calibrated prefix scores now, and should treat BN/VoI layers as auditable evidence tools whose differentiation will grow only as inspectable factor evidence grows.
+
+Limitations include weak-label dependence for NLP evaluation, a single primary metropolitan dataset, absence clamping as a missingness model, and myopic VoI rather than full multi-step planning. Future work should test richer inspectable-factor regimes, multi-city temporal external validation, alternative silence models, and multi-step VoI with explicit inspection costs---each tied to a measured boundary in Section~\ref{sec:results} rather than to an open-ended wish list.
+
+\section*{Acknowledgment}
+Experimental artifacts (models, scoreboards, and figures) were generated from the DRIN codebase and held-out NYC Open Data splits described herein.
+
+\bibliographystyle{bibstyle}
+\bibliography{refs}
+
+\end{document}
