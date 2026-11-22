@@ -1,0 +1,21 @@
+{
+  "n_rows_history": 22464,
+  "n_pids": 3661,
+  "n_episode_rows": 4903,
+  "severe_rate": 0.20650095602294455,
+  "factors": [
+    "budget",
+    "scope_design",
+    "grants_approvals",
+    "procurement",
+    "construction_conditions",
+    "external_dependency",
+    "workforce_resource",
+    "other_admin"
+  ],
+  "counts": {
+    "train": 2562,
+    "test": 550,
+    "val": 549
+  }
+}

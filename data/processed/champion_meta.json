@@ -1,0 +1,69 @@
+{
+  "selected_model": "hgb",
+  "threshold": 0.51,
+  "n_train": 2562,
+  "n_val": 549,
+  "n_test": 550,
+  "base_rate_test": 0.2,
+  "val_metrics": {
+    "accuracy": 0.9289617486338798,
+    "balanced_accuracy": 0.8795163170163169,
+    "precision": 0.8715596330275229,
+    "recall": 0.7916666666666666,
+    "specificity": 0.9673659673659674,
+    "f1": 0.8296943231441049,
+    "roc_auc": 0.9516996891996892,
+    "log_loss": 0.23980851000487471,
+    "brier": 0.06323749953028075,
+    "kappa": 0.7849459125561213
+  },
+  "test_metrics": {
+    "accuracy": 0.94,
+    "balanced_accuracy": 0.9045454545454545,
+    "precision": 0.8532110091743119,
+    "recall": 0.8454545454545455,
+    "specificity": 0.9636363636363636,
+    "f1": 0.8493150684931506,
+    "roc_auc": 0.9805165289256199,
+    "log_loss": 0.14583199954252302,
+    "brier": 0.04331762425148856,
+    "kappa": 0.8118586088939567
+  },
+  "literature_comparison": [
+    {
+      "literature_metric": "Khodabakhshian_2025_post_GAN_accuracy",
+      "literature_value": 0.85,
+      "our_test_accuracy": 0.94,
+      "our_test_auc": 0.9805165289256199,
+      "beat": true,
+      "margin_accuracy": 0.08999999999999997
+    },
+    {
+      "literature_metric": "Khodabakhshian_2025_pre_GAN_accuracy",
+      "literature_value": 0.72,
+      "our_test_accuracy": 0.94,
+      "our_test_auc": 0.9805165289256199,
+      "beat": true,
+      "margin_accuracy": 0.21999999999999997
+    },
+    {
+      "literature_metric": "Tagharobi_2025_model3_accuracy",
+      "literature_value": 0.89,
+      "our_test_accuracy": 0.94,
+      "our_test_auc": 0.9805165289256199,
+      "beat": true,
+      "margin_accuracy": 0.04999999999999993
+    },
+    {
+      "literature_metric": "Tagharobi_2025_external_accuracy",
+      "literature_value": 0.768,
+      "our_test_accuracy": 0.94,
+      "our_test_auc": 0.9805165289256199,
+      "beat": true,
+      "margin_accuracy": 0.17199999999999993
+    }
+  ],
+  "beats_khodabakhshian_85": true,
+  "beats_tagharobi_89": true,
+  "beats_tagharobi_external_768": true
+}

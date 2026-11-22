@@ -1,0 +1,16 @@
+{
+  "n_projects": 189,
+  "high_risk_rate": 0.12698412698412698,
+  "dca_counts": {
+    "AMBER": 51,
+    "RED": 24,
+    "Exempt under Section 43 - Commercial interests": 6,
+    "GREEN": 6,
+    "Exempt under Section 24 - National security": 4,
+    "Exempt under Section 35 - Formulation of government policy": 3,
+    "Exempt under Section 43 - Commercial interests, Section 35 - Formulation of government policy": 1,
+    "The GMPP project is still at the planning stage (Pre-SOC or equivalent) and is not yet in a position to provide cost/schedule information": 1,
+    "Exempt under Section 27 - International relations": 1,
+    "Exempt under Section 23 - Information supplied by, or relating to, bodies dealing with security matters": 1
+  }
+}

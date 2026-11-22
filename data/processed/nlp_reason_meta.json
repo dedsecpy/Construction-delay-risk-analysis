@@ -1,0 +1,20 @@
+{
+  "n_train_texts": 13,
+  "classes": [
+    "budget",
+    "grants_approvals",
+    "other_admin",
+    "procurement",
+    "scope_design"
+  ],
+  "factors": [
+    "budget",
+    "scope_design",
+    "grants_approvals",
+    "procurement",
+    "construction_conditions",
+    "external_dependency",
+    "workforce_resource",
+    "other_admin"
+  ]
+}

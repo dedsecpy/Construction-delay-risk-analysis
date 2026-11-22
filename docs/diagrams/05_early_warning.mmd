@@ -1,0 +1,9 @@
+flowchart TB
+  H["Full schedule history"] --> CUT["First early_frac updates"]
+  H --> LAB["Label from FULL history<br/>top-quartile +variance"]
+  CUT --> X["Features: factors · early variance<br/>phase · agency · budget"]
+  X --> M["HGB / Stacking"]
+  LAB --> M
+  M --> P["P(severe)"]
+  P --> T["τ* from validation"]
+  T --> A["Alert / no-alert"]

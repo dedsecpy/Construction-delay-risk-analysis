@@ -1,0 +1,16 @@
+sequenceDiagram
+  participant Ep as Episode PID
+  participant Pol as Policy VoI
+  participant BN as DelayRiskBN
+  participant Dec as Alert τ
+
+  Ep->>Pol: inspectable factors only
+  loop until budget B exhausted or alert
+    Pol->>BN: rank uninspected by VoI
+    BN-->>Pol: next factor f*
+    Pol->>Ep: inspect f*
+    Ep->>BN: observe present/absent
+    BN-->>Dec: P(severe | evidence)
+    Dec-->>Pol: alert if P ≥ τ
+  end
+  Pol-->>Ep: inspection trace

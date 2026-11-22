@@ -1,0 +1,84 @@
+﻿User
+
+# AGENTS.md instructions
+
+<INSTRUCTIONS>
+@C:\Users\Aejaz\.codex\RTK.md
+</INSTRUCTIONS>
+<environment_context>
+  <cwd>C:\Users\Aejaz</cwd>
+  <shell>powershell</shell>
+  <current_date>2026-11-21</current_date>
+  <timezone>Asia/Calcutta</timezone>
+  <filesystem><workspace_roots><root>C:\Users\Aejaz</root></workspace_roots><permission_profile type="managed"><file_system type="restricted"><entry access="read"><special>:root</special></entry><entry access="write"><path>C:\Users\Aejaz</path></entry><entry access="write"><special>:slash_tmp</special></entry><entry access="write"><special>:tmpdir</special></entry><entry access="read"><path>C:\Users\Aejaz\.git</path></entry><entry access="read"><path>C:\Users\Aejaz\.agents</path></entry><entry access="read"><path>C:\Users\Aejaz\.codex</path></entry><entry access="read"><path>C:\Users\Aejaz\.aws</path></entry></file_system></permission_profile></filesystem>
+</environment_context>
+
+User
+
+suggest me a project title for Mathematics for Intelligent Systems 5 "E:\AIDS\Sem 5\23MAT303_Mathematics_for_Intelligent_Systems_5" we had already worked on a case study "E:\AIDS\Sem 5\23MAT303_Mathematics_for_Intelligent_Systems_5\Case Study" So, decide such a topic which is perfect for demonstration and contributes for significant novelty in research (better if its related to our case study)
+
+Assistant
+
+I’ll read the case study and course materials, then check related research before choosing a title, a demo, and a novelty claim you can test.
+
+Assistant
+
+**Recommended project title — “Which Risk Should We Check Next? A Bayesian Decision Network for Early Warning of Construction Delays”**
+
+I’d choose this for Team 19 because it turns your case study into a decision the audience can make during the demo. Your presentation showed how 24 risk factors influence schedule delay. Your project would ask a new question: **If a project manager can verify only two risk factors today, which should they check, and should the first result change their second choice?** That connects Bayesian inference from Unit 1 directly to decision networks from Unit 3. [Team 19 presentation](<E:/AIDS/Sem 5/23MAT303_Mathematics_for_Intelligent_Systems_5/Case Study/Team 19.pptx>) · [23MAT303 course plan](<E:/AIDS/Sem 5/23MAT303_Mathematics_for_Intelligent_Systems_5/PPTs/AIDS (Mathematics for Intelligent System5)/23MAT303_Course_Plan_Curriculum1.pdf>)
+
+**The research opportunity is in how you handle disagreement.** In the published theater case, three experts rated machinery-failure risk low, six rated it medium, and one rated it high. The original model entered **medium**. A unanimous medium rating would have produced the same input. Your model could preserve the vote split as uncertain evidence and estimate whether checking the maintenance record is worth the effort. The hypothesis is testable: *At the same inspection budget, does accounting for expert disagreement reduce missed severe delays compared with always checking the highest-ranked risks?* Value-of-information methods already exist. Your proposed contribution is testing when disagreement changes the best inspection and whether that change improves delay warnings. [Chen, Li & Zha, 2024](https://onlinelibrary.wiley.com/doi/10.1155/adce/5517481) · [Krause & Guestrin on selecting observations](https://ijcai.org/proceedings/2005/137)
+
+**For the live demo**, put the audience in charge of the theater project. Give them two inspection tokens and let them choose among checking maintenance records, reviewing design changes, or inspecting overlapping operations. After each finding, update the probability of a **greater-than-25% schedule overrun** and show which check the model recommends next. Then replay the same scenario with a different first finding. The audience gets to see exactly when new evidence changes a decision. [Case-study delay categories](https://onlinelibrary.wiley.com/doi/10.1155/adce/5517481)
+
+**For a semester-sized implementation**, use six to eight factors and compare three strategies on the same scenarios: a fixed risk ranking, adaptive checks using majority ratings, and adaptive checks preserving the vote splits. Report missed severe delays **and** false alarms at equal inspection cost. Use the published theater and airport cases for the walkthrough, then use clearly labeled simulations to test how the strategies behave as expert reliability varies. Two real cases can illustrate the method. The simulation can establish the conditions under which your approach earns its extra complexity.
+
+User
+
+get me a powerful project title.
+
+Assistant
+
+**Which Risk Should We Inspect Next? A Bayesian Decision Network for Early Warning of Construction Delays Under Expert Disagreement**
+
+User
+
+it doesnot sound research level. It should be Journal paper level title
+
+Assistant
+
+**Budget-Constrained Sequential Inspection for Construction Delay Risk Assessment Using a Bayesian Decision Network With Expert Disagreement**
+
+User
+
+and a short description  (30 words)
+
+Assistant
+
+This project uses a Bayesian decision network to select inspections under budget constraints and tests whether accounting for expert disagreement improves detection of severe construction delays compared with fixed rankings.
+
+User
+
+Great lets lock Budget-Constrained Sequential Inspection for Construction Delay Risk Assessment Using a Bayesian Decision Network With Expert Disagreement
+
+Assistant
+
+**Final project title**
+
+Budget-Constrained Sequential Inspection for Construction Delay Risk Assessment Using a Bayesian Decision Network With Expert Disagreement
+
+**Project description (30 words)**
+
+This project uses a Bayesian decision network to select inspections under budget constraints and tests whether accounting for expert disagreement improves detection of severe construction delays compared with fixed rankings.
+
+User
+
+get me entire convo of this chat in a text file
+
+Assistant
+
+I’ll save the conversation as a plain-text file with speaker labels and preserve the original wording.
+
+Assistant
+
+[Download the full chat transcript](<C:/Users/Aejaz/Downloads/Mathematics_Project_Chat_Transcript.txt>)

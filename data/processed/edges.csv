@@ -1,0 +1,9 @@
+parent,child
+budget,severe_delay
+scope_design,severe_delay
+grants_approvals,severe_delay
+procurement,severe_delay
+construction_conditions,severe_delay
+external_dependency,severe_delay
+workforce_resource,severe_delay
+other_admin,severe_delay

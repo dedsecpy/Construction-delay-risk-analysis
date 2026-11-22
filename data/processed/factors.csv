@@ -1,0 +1,9 @@
+factor_id,name,description
+budget,Budget constraints,Budgetary / funding constraints delaying completion
+scope_design,Scope or design changes,Changes in scope or design
+grants_approvals,Grants and approvals,Non-city grants permits or approvals pending
+procurement,Procurement,Construction procurement / contracting delays
+construction_conditions,Construction conditions,Unexpected construction site conditions
+external_dependency,External dependency,External agency utility or stakeholder dependency
+workforce_resource,Workforce or resources,Labor equipment or resource shortages
+other_admin,Other administrative,Other administrative or unclassified delays

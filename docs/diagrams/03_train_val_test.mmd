@@ -1,0 +1,8 @@
+flowchart LR
+  ALL["3,661 PIDs"] --> SPLIT["Shuffle seed=42"]
+  SPLIT --> TR["Train 70%<br/>2,562"]
+  SPLIT --> VA["Val 15%<br/>549"]
+  SPLIT --> TE["Test 15%<br/>550"]
+  TR --> FIT["Fit NLP · CPTs · ML"]
+  VA --> TUNE["Tune τ · select model"]
+  TE --> REP["Report once"]

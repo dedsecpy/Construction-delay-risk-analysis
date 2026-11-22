@@ -1,0 +1,16 @@
+{
+  "theater": {
+    "name": "Grand Theater (Chen et al. 2024 narrative)",
+    "severe_delay": false,
+    "actual_overrun_pct": 15.7,
+    "inspectable_factors": ["workforce_resource", "scope_design", "procurement", "construction_conditions"],
+    "notes": "Demo narrative overlay; statistical backbone is NYC Open Data."
+  },
+  "airport": {
+    "name": "Airport ATC facility (Chen et al. 2024 narrative)",
+    "severe_delay": true,
+    "actual_overrun_pct": 25.0,
+    "inspectable_factors": ["budget", "scope_design", "grants_approvals", "external_dependency"],
+    "notes": "Severe-delay class (>25%) walkthrough for viva demo."
+  }
+}

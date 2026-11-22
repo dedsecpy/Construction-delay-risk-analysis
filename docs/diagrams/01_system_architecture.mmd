@@ -1,0 +1,52 @@
+flowchart TB
+  subgraph IN["1 · Data"]
+    NYC1["NYC Schedule History<br/>95tx-snak"]
+    NYC2["NYC Capital Projects<br/>n7gv-k5yt"]
+  end
+
+  subgraph MAP["2 · Evidence mapping"]
+    REGEX["Regex mapper"]
+    NLP["TF-IDF + Logistic Regression"]
+    EP["Per-PID episodes"]
+  end
+
+  subgraph CORE["3 · Probabilistic core"]
+    BN["Bayesian Network<br/>8 factors → severe_delay"]
+    CPT["Noisy-OR CPTs<br/>p_cause=0.55 · leak=0.02"]
+    INF["Exact inference<br/>P(severe | evidence)"]
+  end
+
+  subgraph DEC["4 · Decision layer"]
+    FIX["Fixed ranking"]
+    STAT["Static BN"]
+    CVOI["Consensus VoI"]
+    DVOI["Disagreement VoI"]
+  end
+
+  subgraph ML["5 · Early-warning ML"]
+    FEAT["Prefix features"]
+    HGB["HistGradientBoosting"]
+    THR["Val-tuned threshold"]
+  end
+
+  subgraph OUT["6 · DRIN operations UI"]
+    PORT["Portfolio risk"]
+    REV["Project review"]
+  end
+
+  NYC1 --> REGEX
+  NYC1 --> NLP
+  NYC2 --> FEAT
+  REGEX --> EP
+  NLP --> EP
+  EP --> BN
+  EP --> FEAT
+  BN --> CPT --> INF
+  INF --> STAT
+  INF --> CVOI
+  INF --> DVOI
+  FIX --> PORT
+  STAT --> PORT
+  CVOI --> PORT
+  DVOI --> REV
+  FEAT --> HGB --> THR --> REV

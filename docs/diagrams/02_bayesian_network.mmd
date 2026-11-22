@@ -1,0 +1,24 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Arial", "fontSize": "13px", "primaryColor": "#e8f0fb", "primaryBorderColor": "#0b5dd0", "primaryTextColor": "#17171b", "lineColor": "#333333", "secondaryColor": "#ffe8e4"}}}%%
+flowchart TB
+  B(("budget<br/>PDT: P(1)=0.50"))
+  S(("scope_design<br/>PDT: P(1)=0.42"))
+  G(("grants_approvals<br/>PDT: P(1)=0.42"))
+  P(("procurement<br/>PDT: P(1)=0.18"))
+  C(("construction_conditions<br/>PDT: P(1)=0.18"))
+  E(("external_dependency<br/>PDT: P(1)=0.18"))
+  W(("workforce_resource<br/>PDT: P(1)=0.18"))
+  O(("other_admin<br/>PDT: P(1)=0.35"))
+
+  CPT["PDT Noisy-OR<br/>k=0 → P(Y=1)=0.02<br/>k=1 → 0.559<br/>k=2 → 0.802<br/>k=3 → 0.911<br/>p_c=0.55 · ℓ=0.02"]
+
+  Y(("severe_delay<br/>PDT: P(Y| F)"))
+
+  B --> CPT
+  S --> CPT
+  G --> CPT
+  P --> CPT
+  C --> CPT
+  E --> CPT
+  W --> CPT
+  O --> CPT
+  CPT --> Y

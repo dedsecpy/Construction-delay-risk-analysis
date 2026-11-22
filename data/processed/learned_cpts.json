@@ -1,0 +1,48 @@
+{
+  "factors": [
+    "budget",
+    "scope_design",
+    "grants_approvals",
+    "procurement",
+    "construction_conditions",
+    "external_dependency",
+    "workforce_resource",
+    "other_admin"
+  ],
+  "p_cause": 0.55,
+  "leak": 0.02,
+  "train_auc": 0.8333333333333333,
+  "train_loglik": -2.6614424645905292,
+  "consensus_priors": {
+    "budget": 0.6,
+    "scope_design": 0.2,
+    "grants_approvals": 0.2,
+    "procurement": 0.2,
+    "construction_conditions": 0.05,
+    "external_dependency": 0.05,
+    "workforce_resource": 0.05,
+    "other_admin": 0.2
+  },
+  "disagreement_priors": {
+    "budget": 0.5029049405545332,
+    "scope_design": 0.4165784284662087,
+    "grants_approvals": 0.4165784284662087,
+    "procurement": 0.4165784284662087,
+    "construction_conditions": 0.17887863070218032,
+    "external_dependency": 0.17887863070218032,
+    "workforce_resource": 0.17887863070218032,
+    "other_admin": 0.35
+  },
+  "vote_entropy": {
+    "budget": 0.9709505944546686,
+    "scope_design": 0.7219280948873623,
+    "grants_approvals": 0.7219280948873623,
+    "procurement": 0.7219280948873623,
+    "construction_conditions": 0.28639695711595625,
+    "external_dependency": 0.28639695711595625,
+    "workforce_resource": 0.28639695711595625,
+    "other_admin": 0.7219280948873623
+  },
+  "n_train_pids": 5,
+  "severe_rate_train": 0.6
+}
