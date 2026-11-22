@@ -128,7 +128,7 @@ The diagram includes **Probability Distribution Tables (PDTs)**:
 
 ![Complete Bayesian network with PDTs](docs/diagrams/02_bayesian_network.svg)
 
-Mermaid source: [`02_bayesian_network.mmd`](docs/diagrams/02_bayesian_network.mmd).
+Also available: Mermaid-rendered twin [`02_bayesian_network_from_mermaid.svg`](docs/diagrams/02_bayesian_network_from_mermaid.svg) · full PDT variant [`02_bayesian_network_complete.svg`](docs/diagrams/02_bayesian_network_complete.svg) · source [`02_bayesian_network.mmd`](docs/diagrams/02_bayesian_network.mmd).
 
 <details>
 <summary>Mermaid source — BN with PDT annotations (oval nodes)</summary>
