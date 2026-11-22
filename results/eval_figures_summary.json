@@ -1,0 +1,125 @@
+{
+  "test_n": 550,
+  "threshold": 0.51,
+  "champion_test_metrics": {
+    "accuracy": 0.94,
+    "balanced_accuracy": 0.9045454545454545,
+    "precision": 0.8532110091743119,
+    "recall": 0.8454545454545455,
+    "specificity": 0.9636363636363636,
+    "f1": 0.8493150684931506,
+    "roc_auc": 0.9805165289256199,
+    "log_loss": 0.14583199954252302,
+    "brier": 0.04331762425148856,
+    "kappa": 0.8118586088939567
+  },
+  "derived": {
+    "pr_auc": 0.9438984723857579,
+    "f2": 0.8469945355191257,
+    "ece": 0.029630293086860122,
+    "lead_time_mean_caught": 2.989247311827957,
+    "nlp": {
+      "macro_f1": 0.3109318996415771,
+      "weighted_f1": 0.3546238512398308,
+      "full_mapper_macro_f1": 0.875,
+      "full_mapper_weighted_f1": 1.0,
+      "n": 367,
+      "n_unique_texts": 9
+    }
+  },
+  "bootstrap_95ci": [
+    {
+      "metric": "accuracy",
+      "mean": 0.9411090909090909,
+      "lo": 0.9218181818181819,
+      "hi": 0.9581818181818181
+    },
+    {
+      "metric": "balanced_accuracy",
+      "mean": 0.9064894092313903,
+      "lo": 0.8697591265056996,
+      "hi": 0.938603497214981
+    },
+    {
+      "metric": "precision",
+      "mean": 0.8557347637052132,
+      "lo": 0.782213808025177,
+      "hi": 0.9142857142857143
+    },
+    {
+      "metric": "recall",
+      "mean": 0.8487618535725286,
+      "lo": 0.779896551724138,
+      "hi": 0.9107286866359446
+    },
+    {
+      "metric": "f1",
+      "mean": 0.8516541662408764,
+      "lo": 0.7981158225951454,
+      "hi": 0.8958581349206349
+    },
+    {
+      "metric": "roc_auc",
+      "mean": 0.9810055734188958,
+      "lo": 0.969218857809108,
+      "hi": 0.9902166477760639
+    },
+    {
+      "metric": "brier",
+      "mean": 0.04256218883801578,
+      "lo": 0.03107951066549075,
+      "hi": 0.05545189133196221
+    }
+  ],
+  "scoreboard_b2": [
+    {
+      "policy": "consensus_voi",
+      "budget": 2,
+      "n": 550,
+      "recall": 0.45045045045045046,
+      "precision": 0.8064516129032258,
+      "fpr": 0.02733485193621868,
+      "roc_auc": 0.871657534527694,
+      "brier": 0.09678924799195485,
+      "mean_steps_to_alert": 1.0,
+      "mean_p_severe": 0.21624928750000003
+    },
+    {
+      "policy": "disagreement_voi",
+      "budget": 2,
+      "n": 550,
+      "recall": 0.45045045045045046,
+      "precision": 0.8064516129032258,
+      "fpr": 0.02733485193621868,
+      "roc_auc": 0.8724065751400604,
+      "brier": 0.0968780864759023,
+      "mean_steps_to_alert": 1.0,
+      "mean_p_severe": 0.2167509858664249
+    },
+    {
+      "policy": "fixed",
+      "budget": 2,
+      "n": 550,
+      "recall": 0.45045045045045046,
+      "precision": 0.8064516129032258,
+      "fpr": 0.02733485193621868,
+      "roc_auc": 0.8716370128670812,
+      "brier": 0.09677372282674859,
+      "mean_steps_to_alert": 1.0,
+      "mean_p_severe": 0.2161302175
+    },
+    {
+      "policy": "static_bn",
+      "budget": 2,
+      "n": 550,
+      "recall": 0.45045045045045046,
+      "precision": 0.8064516129032258,
+      "fpr": 0.02733485193621868,
+      "roc_auc": 0.8716370128670812,
+      "brier": 0.09677372282674859,
+      "mean_steps_to_alert": 1.0,
+      "mean_p_severe": 0.2161302175
+    }
+  ],
+  "figures_dir": "E:\\AIDS\\Sem 5\\23MAT303_Mathematics_for_Intelligent_Systems_5\\End Sem Project\\Project\\results\\figures"
+}

@@ -293,12 +293,17 @@ Early-warning champion — HistGradientBoosting, `early_frac = 0.70`, \(\tau = 0
 | Metric | Value |
 |--------|------:|
 | Accuracy | **0.940** |
+| Balanced accuracy | 0.905 |
 | ROC-AUC | **0.981** |
+| PR-AUC | 0.944 |
 | Precision | 0.853 |
-| Recall | 0.846 |
-| F1 | 0.849 |
+| Recall | 0.845 |
+| Specificity | 0.964 |
+| F1 / F2 | 0.849 / 0.847 |
+| Brier / Log-loss / ECE | 0.043 / 0.146 / 0.030 |
 | Cohen κ | 0.812 |
-| Log-loss | 0.146 |
+
+![Literature accuracy beat](results/figures/01_literature_accuracy_beat.png)
 
 | Paper / setting | Published | Ours | Margin | Beat? |
 |-----------------|----------:|-----:|-------:|:-----:|
@@ -307,7 +312,36 @@ Early-warning champion — HistGradientBoosting, `early_frac = 0.70`, \(\tau = 0
 | Tagharobi 2025 — Model 3 | 0.89 | **0.94** | +0.05 | Yes |
 | Tagharobi 2025 — external | 0.768 | **0.94** | +0.17 | Yes |
 
-### 6.2 Robustness across early windows
+### 6.2 Evaluation figure pack
+
+All plots are computed from the held-out TEST split (`n=550` PIDs) unless noted. Regenerate with:
+
+```bash
+python experiments/generate_eval_figures.py
+```
+
+| Figure | File |
+|--------|------|
+| Scorecard | [`results/figures/00_scorecard_overview.png`](results/figures/00_scorecard_overview.png) |
+| Literature beat | [`01_literature_accuracy_beat.png`](results/figures/01_literature_accuracy_beat.png) |
+| Classifier bars (P/R/F1/F2/…) | [`02_classifier_metric_bars.png`](results/figures/02_classifier_metric_bars.png) |
+| ROC + PR | [`03_roc_pr_curves.png`](results/figures/03_roc_pr_curves.png) |
+| Confusion matrix | [`04_confusion_matrix.png`](results/figures/04_confusion_matrix.png) |
+| Calibration / Brier / ECE | [`05_calibration_curve.png`](results/figures/05_calibration_curve.png) |
+| Decision-curve net benefit | [`06_decision_curve_net_benefit.png`](results/figures/06_decision_curve_net_benefit.png) |
+| Bootstrap CIs + PID split | [`07_bootstrap_ci_and_pid_split.png`](results/figures/07_bootstrap_ci_and_pid_split.png) |
+| Literature table | [`08_literature_comparison_table.png`](results/figures/08_literature_comparison_table.png) |
+| Recall@B / Precision@B / AUC@B | [`09_recall_precision_auc_at_B.png`](results/figures/09_recall_precision_auc_at_B.png) |
+| Inspections-to-first-detection | [`10_inspections_to_first_detection.png`](results/figures/10_inspections_to_first_detection.png) |
+| Lead time to alert | [`11_lead_time_to_alert.png`](results/figures/11_lead_time_to_alert.png) |
+| Reason→factor F1 | [`12_reason_factor_mapping_f1.png`](results/figures/12_reason_factor_mapping_f1.png) |
+| Expected utility / loss | [`13_expected_utility_loss.png`](results/figures/13_expected_utility_loss.png) |
+
+![ROC and PR curves](results/figures/03_roc_pr_curves.png)
+
+![Confusion matrix](results/figures/04_confusion_matrix.png)
+
+### 6.3 Robustness across early windows
 
 | `early_frac` | TEST accuracy | TEST AUC | Beats 0.85 | Beats 0.89 |
 |-------------:|--------------:|---------:|:----------:|:----------:|
@@ -316,18 +350,20 @@ Early-warning champion — HistGradientBoosting, `early_frac = 0.70`, \(\tau = 0
 | 0.60 | 0.938 | 0.969 | Yes | Yes |
 | **0.70** | **0.940** | **0.981** | Yes | Yes |
 
-### 6.3 Budgeted VoI evaluation (TEST, \(B=2\))
+### 6.4 Budgeted VoI evaluation (TEST, \(B=2\))
 
-Improved pipeline (NLP + learned CPTs + val-tuned thresholds), 550 test PIDs:
+NLP + learned CPTs + val-tuned thresholds, 550 test PIDs (policies are essentially tied after clamping never-mentioned factors):
 
-| Policy | Recall | Precision | FPR | ROC-AUC |
-|--------|-------:|----------:|----:|--------:|
-| Fixed | 0.70 | 0.55 | 0.14 | ≈ 0.79 |
-| Static BN | 0.70 | 0.55 | 0.14 | ≈ 0.79 |
-| Consensus VoI | 0.70 | 0.55 | 0.14 | ≈ 0.79 |
-| Disagreement VoI | 0.70 | 0.55 | 0.14 | ≈ 0.79 |
+| Policy | Recall | Precision | FPR | ROC-AUC | Brier |
+|--------|-------:|----------:|----:|--------:|------:|
+| Fixed | 0.450 | 0.806 | 0.027 | 0.872 | 0.097 |
+| Static BN | 0.450 | 0.806 | 0.027 | 0.872 | 0.097 |
+| Consensus VoI | 0.450 | 0.806 | 0.027 | 0.872 | 0.097 |
+| Disagreement VoI | 0.450 | 0.806 | 0.027 | 0.872 | 0.097 |
 
-Artifacts: `results/scoreboard_improved.csv`, `results/gains_improved.csv`, `results/LITERATURE_BEAT.md`.
+![Budget metrics](results/figures/09_recall_precision_auc_at_B.png)
+
+Artifacts: `results/scoreboard_improved.csv`, `results/eval_figures_summary.json`, `results/figures/`.
 
 ---
 

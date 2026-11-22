@@ -8,6 +8,12 @@ data/raw/*
 !data/raw/.gitkeep
 results/*
 !results/.gitkeep
+!results/figures/
+!results/figures/**
+!results/eval_figures_summary.json
+!results/scoreboard_improved.csv
+!results/literature_comparison.csv
+!results/champion_test_metrics.csv
 web/node_modules/
 web/dist/
 .DS_Store
