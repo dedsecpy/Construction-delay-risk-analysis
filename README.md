@@ -128,7 +128,7 @@ The diagram includes **Probability Distribution Tables (PDTs)**:
 
 ![Complete Bayesian network with PDTs](docs/diagrams/02_bayesian_network.svg)
 
-Also available: Mermaid-rendered twin [`02_bayesian_network_from_mermaid.svg`](docs/diagrams/02_bayesian_network_from_mermaid.svg) · source [`02_bayesian_network.mmd`](docs/diagrams/02_bayesian_network.mmd).
+Mermaid source: [`02_bayesian_network.mmd`](docs/diagrams/02_bayesian_network.mmd).
 
 <details>
 <summary>Mermaid source — BN with PDT annotations (oval nodes)</summary>
@@ -339,12 +339,12 @@ Project/
 ├── requirements.txt
 ├── app/                      # FastAPI backend (DRIN)
 ├── web/                      # React + Vite scientific dashboard
-├── scripts/run_sentinel.ps1  # launcher (API + UI)
+├── scripts/run_drin.ps1      # launcher (API + UI)
 ├── docs/
 │   ├── problem_brief.md
 │   ├── dataset_card.md
 │   ├── metric_scoreboard.md
-│   └── references/           # proposal PDFs + chat transcript
+│   └── references/           # proposal PDFs
 ├── src/
 │   ├── data/                 # download, NYC/UK ingest, NLP mapper
 │   ├── bn/                   # graph, CPTs, inference, disagreement
@@ -383,7 +383,7 @@ cd web; npm install; npm run dev
 ```
 
 Open **http://127.0.0.1:5173** — **DRIN** Schedule Risk Operations: Portfolio · Project review.  
-Or: `powershell -File scripts/run_sentinel.ps1`
+Or: `powershell -File scripts/run_drin.ps1`
 
 Python **3.12+** · Node **18+** · FastAPI + React (Vite).
 

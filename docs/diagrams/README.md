@@ -3,7 +3,7 @@
 | Diagram | Mermaid source | Rendered SVG |
 |---------|----------------|--------------|
 | System architecture | `01_system_architecture.mmd` | `01_system_architecture.svg` |
-| Complete Bayesian network | `02_bayesian_network.mmd` | `02_bayesian_network.svg` (full labeled) · `02_bayesian_network_from_mermaid.svg` |
+| Complete Bayesian network (+ PDTs) | `02_bayesian_network.mmd` | `02_bayesian_network.svg` |
 | Train / val / test | `03_train_val_test.mmd` | `03_train_val_test.svg` |
 | Inspection loop | `04_inspection_loop.mmd` | `04_inspection_loop.svg` |
 | Early-warning | `05_early_warning.mmd` | `05_early_warning.svg` |
